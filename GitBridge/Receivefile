@@ -1,0 +1,124 @@
+-----------------------------------------------------------------------------
+-- Copyright (c) Greg Johnson, Gnu Public Licence v. 2.0.
+-----------------------------------------------------------------------------
+--[[
+protocol with git backup of codea file:
+codea client     ||      PC server
+         -->> SAVE_GET -->>
+         -->> directory name -->>
+         -->> file name -->>
+         >>-- file CRC -->>
+         <<-- SAVE_SEND/SAVE_NOT_NEEDED/ERROR <<--
+         -->> file line count -->>
+         -->> line 1 -->>
+              ...
+         -->> line N -->>
+         <<-- SAVE_OKAY/ERROR <<--
+
+         <<-- SERVER_CRC <<--
+         <<-- file CRC <<--
+         >>-- SEND/NOT_NEEDED -->>
+         -->> file line count -->>
+         -->> line 1 -->>
+              ...
+         -->> line N -->>
+         <<-- OKAY <<--
+--]]
+function receiveFileBackupLocalVersion(sock, dir, fname,
+                                       fileContents, okReceive)
+    local hash = -1
+
+    if fileContents then
+        if fileContents:sub(-1) ~= "\n" then
+            fileContents = fileContents .. "\n"
+        end
+
+        hash = messageCrc(fileContents)
+    end
+
+    sock:send('SAVE_GET\n')
+    sock:send(dir .. '\n')
+    sock:send(fname .. '\n')
+    sock:send(hash .. "\n")
+
+    local response, msgError = receiveLine(sock)
+    if response == nil then return false, msgError end
+
+    if response == 'SAVE_SEND' then
+        local nlines = linefeedCount(fileContents)
+        sock:send(nlines .. "\n")
+        sock:send(fileContents)
+
+        snd, msgError = receiveLine(sock)
+        if snd == nil then return false, msgError end
+
+        if snd ~= 'SAVE_OKAY' then
+            return false, string.format("server problem: %s", snd)
+        end
+
+    elseif response == 'SAVE_NOT_NEEDED' then
+        if DEBUG then
+            print('do not need to save Codea file..')
+        end
+
+    elseif response:match('^ERROR') then
+        return false, string.format('server reported an error:  %s', response)
+
+    else
+        return false, string.format('server invalid response:  %s', response)
+    end
+
+    local response, msgError = receiveLine(sock)
+    if response == nil then return false, msgError end
+
+    if response ~= 'SERVER_CRC' then
+        return false, string.format('PC error message:  %s', response)
+    end
+
+    local crc, msgError = receiveLine(sock)
+    
+    if crc == nil then return false, msgError end
+
+    -- use the hash to decide if we already have the file and
+    -- can save the bandwidth of sending it..
+
+    if okReceive and not okReceive(dir, fname, crc) then
+        if DEBUG then
+            print(string.format(
+            "already have file %s/%s.  don't need to send..",
+            dir, fname))
+        end
+
+        sock:send("NOT_NEEDED\n")
+
+        return true
+    else
+        sock:send("SEND\n")
+    end
+
+    nlines, msgError = receiveLine(sock)
+    if nlines == nil then return false, msgError end
+
+    contents = {}
+    for k=1, tonumber(nlines) do
+        lne, err = sock:receive()
+        if lne == nil then return false, err end
+
+        table.insert(contents, lne)
+    end
+
+    contents = table.concat(contents, '\n') .. '\n'
+
+    sock:send("OKAY\n")
+
+    return contents
+end
+
+function needFile(dir, name, crc)
+    local contents = readProjectTab(dir..':'..name)
+    if contents == nil then return true end
+
+    local hash = messageCrc(contents)
+
+    return tostring(hash) ~= crc
+end

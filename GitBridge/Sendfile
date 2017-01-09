@@ -1,0 +1,58 @@
+-----------------------------------------------------------------------------
+-- Copyright (c) Greg Johnson, Gnu Public Licence v. 2.0.
+-----------------------------------------------------------------------------
+--[[
+protocol for sending file:
+codea client     ||      PC server
+         -->> SEND -->>
+         <<-- SEND <<--
+
+         -->> directory name -->>
+         -->> file name -->>
+         >>-- file CRC -->>
+
+         <<-- SEND/NOT_NEEDED <<--
+         -->> file line count -->>
+         -->> line 1 -->>
+              ...
+         -->> line N -->>
+         <<-- OKAY/ERROR <<--
+--]]
+function sendFile(s, fileDirectory, fileName, fileContents)
+    s:send("SEND\n")
+
+    local codeaMsg, msgError = receiveLine(s)
+    if codeaMsg == nil then return false, msgError end
+
+    if codeaMsg ~= 'SEND' then
+        return false, string.format("server refused: %s", codeaMsg)
+    end
+
+    if fileContents:sub(-1) ~= "\n" then
+        fileContents = fileContents .. "\n"
+    end
+
+    local hash = messageCrc(fileContents)
+
+    s:send(fileDirectory .. "\n")
+    s:send(fileName .. "\n")
+    s:send(hash .. "\n")
+
+    codeaMsg, msgError = receiveLine(s)
+    if codeaMsg == nil then return false, msgError end
+
+    if codeaMsg == "SEND" then
+        local nlines = linefeedCount(fileContents)
+        s:send(nlines .. "\n")
+        s:send(fileContents)
+
+        codeaMsg, msgError = receiveLine(s)
+        if codeaMsg == nil then return false, msgError end
+
+        if codeaMsg ~= 'OKAY' then
+            return false, string.format("server problem: %s", codeaMsg)
+        end
+    end
+
+    return true
+end

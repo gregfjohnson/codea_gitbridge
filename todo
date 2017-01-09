@@ -1,0 +1,40 @@
+make sendFile(), receiveFile() stuff silent, and return sufficient info
+    so that callers can decide what to do.
+
+x have pc-side debugging use the same sendFile() and receiveFile() as codea
+
+send/receive other types of files?
+
+project dependency files?
+
+force linefeed on last lines of files
+
+x store settings in local/project storage.
+
+x on sendFile, have server get crc and decide if it needs the file.
+
+x do git rebase to combine all interactions (or not.)
+
+x receive causes needless updates of crc history files.
+
+x rename
+
+add copyright notices
+
+README/documentation
+
+x clean up debug printf's on receive side.
+
+automatically adjust if git isn't available (no .git)
+    (but on a per-directory late-bound basis..) (or not?  warning??)
+
+x make one client-side program with Send/Receive choice.
+
+x move "doit" button to the end so it is visible after editing project choice.
+
+x 'save' button for settings
+
+unencumbered crc implementation?
+
+x if a send from client to server would wipe out server-side version with
+    uncommitted changes, refuse to do it.  or, just automatically commit it.
