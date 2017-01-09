@@ -1,4 +1,4 @@
-# GitBridge:  A tool for moving code between Codea and a git working directories #
+# GitBridge:  A tool for moving code between Codea and git working directories #
 
 ## Introduction ##
 
@@ -10,7 +10,8 @@ on another computer.
 
 The intended use of GitBridge is that you have a standard home development
 machine, which is set up "just right" for your programming happiness
-and convenience.  (Version 0.1.0 of GitBridge works only on Linux ma
+and convenience.  (This early-release version of GitBridge was developed
+on and for Linux machines.)
 
 You set your up your iPad next to this machine, and fire up Codea.
 Whenever you feel like it, you move files from Codea to your other
@@ -36,7 +37,7 @@ contains a file per tab in the corresponding Codea project.
 ## Installation and Setup ##
 
 GitBridge was developed and tested on a Linux box.  The port to Windows
-and other platforms is not complete as of GitBridge version 0.1.0.
+and other platforms is not complete as of GitBridge version 0.1.1.
 
 You need to have git installed, unless you run `--no-git`.
 

@@ -27,6 +27,8 @@ function setup()
 end
 
 function draw()
+    background(0, 0, 0)
+
     host, port = host_port:match('([^%s:]+)[%s:]+(%d+)')
     
     local storedHost = readProjectData('host')
