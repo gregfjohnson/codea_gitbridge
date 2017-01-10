@@ -418,6 +418,8 @@ function date_Y_M_D_h_m_s()
 end
 
 function ensureMasterHasAtLeastOneCommit(xDir)
+    if not gitOperations then return end
+
     ensureDirectoryExists(rootDir, xDir)
 
     local dir  = string.format('%s/%s', rootDir, xDir)
@@ -439,6 +441,8 @@ function ensureMasterHasAtLeastOneCommit(xDir)
 end
 
 function changeToGitBranch(xDir, branch)
+    if not gitOperations then return end
+
     assert(branch ~= nil, 'changeToGitBranch nil branch')
 
     local dir  = string.format('%s/%s', rootDir, xDir)
@@ -470,6 +474,8 @@ function changeToGitBranch(xDir, branch)
 end
 
 function doGitCommit(xDir, fileName, xCommitMsg)
+    if not gitOperations then return end
+
     local dir  = string.format('%s/%s', rootDir, xDir)
 
     local commitMsg = 'automatic commit from Codea; '
@@ -480,11 +486,14 @@ function doGitCommit(xDir, fileName, xCommitMsg)
         commitMsg = commitMsg .. ':  ' .. xCommitMsg
     end
 
-    local cmd = string.format('cd %s; git add %s; git status; git commit -m "%s"', dir, fileName, commitMsg)
+    local cmd = string.format('cd %s; git add %s; git status; git commit -m "%s"',
+                              dir, fileName, commitMsg)
     os_execute(cmd)
 end
 
 function commitGitCopyIfNeeded(rootDir, xDir, file, commitMsg)
+    if not gitOperations then return end
+
     local dir  = string.format('%s/%s', rootDir, xDir)
 
     ensureMasterHasAtLeastOneCommit(xDir)
@@ -501,7 +510,7 @@ function commitGitCopyIfNeeded(rootDir, xDir, file, commitMsg)
     cmd = cmd .. string.format('git add %s; ', file)
     cmd = cmd .. string.format('git commit -m "%s"', commitMsg)
 
-    os.execute(cmd)
+    os_execute(cmd)
 end
 
 function writeLocalFileWithCommit(rootDir, xDir, fileName, contents, commitMsg, branch)

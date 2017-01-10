@@ -36,19 +36,15 @@ local v5_3_or_greater = (5.3 <= tonumber(_VERSION:match('([.%d]+)')))
 local xor, rshift_24
 
 if v5_3_or_greater then
-    rshift_24 = loadstring('local function fn(x) return x >> 24 end; return fn')()
+    -- use loadstring() to avoid parse errors for versions < Lua 5.3
 
-    xor = loadstring('local function fn(xFirst, xSecond) return xFirst ~ xSecond end; return fn')()
+    rshift_24 = loadstring('local function fn(x) return x >> 24 end; return fn')()
+    xor       = loadstring('local function fn(xFirst, xSecond) return xFirst ~ xSecond end; return fn')()
 
 else
-    rshift_24 = loadstring('local function fn(x) return math.floor(x / 16777216) end; return fn')()
+    rshift_24 = function(x) return math.floor(x / 16777216) end
 
-    xor = loadstring(
-        [[
-            -- a little bit of Y-combinator-ish goofiness to do
-            -- recursion without using non-local identifiers..
-
-            local function fn(xor, xFirst, xSecond)
+    xor = function(xFirst, xSecond)
                 if xFirst  == 0 then return xSecond end
                 if xSecond == 0 then return xFirst  end
 
@@ -56,10 +52,6 @@ else
 
                 return lastBit + 2 * xor(xor, math.floor(xFirst/2), math.floor(xSecond/2))
             end
-
-            return function(x,y) return fn(fn, x,y) end
-        ]]
-    )()
 end
 
 local crcTable
