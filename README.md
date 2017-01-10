@@ -101,6 +101,8 @@ copy/paste to the Main tab.
 
 ## Usage ##
 
+### Using GitBridge inside Codea ###
+
 When you run GitBridge, you will see a simple, minimal set of Codea
 parameters.  Edit the host_port parameter with the IP address of your
 development machine.  (You need the actual IP address, not a machine
@@ -111,9 +113,33 @@ Then, enter the names of Codea projects.
 The "Copy_projects_now" boolean button will tell GitBridge to send
 all of the tabs for your selected projects over to your server.
 
-You can edit the files on your sever, and then copy them back over
+You can edit the files on your server, and then copy them back over
 to Codea.  This is done by moving "Send_or_Receive" to the right
 (receive) position, and then selecting "Copy_projects_now".
+
+You can add GitBridge to existing projects.  To do that, add
+GitBridge as a dependency to an existing project.  Then, add
+the following two lines:
+~~~
+function setup()
+    GitBridge_setup()
+
+    -- the rest of your own setup function for this project
+    -- ..
+end
+
+function draw()
+    GitBridge_draw()
+
+    -- the rest of your own draw function for this project
+    -- ..
+end
+~~~
+
+This adds the GitBranch GUI parameters to your project.  You can then
+copy files to and from this project from right inside the project.
+
+### What happens in the git working directory ###
 
 Files that you send will be committed on the git "master" branch.
 
