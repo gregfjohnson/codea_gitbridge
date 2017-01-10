@@ -33,24 +33,34 @@ end
 
 local v5_3_or_greater = (5.3 <= tonumber(_VERSION:match('([.%d]+)')))
 
-local xor = v5_3_or_greater
-    and
-        function(xFirst, xSecond) return xFirst ~ xSecond end
-    or
-        function(xFirst, xSecond)
-            if xFirst  == 0 then return xSecond end
-            if xSecond == 0 then return xFirst  end
+local xor, rshift_24
 
-            local lastBit = (xFirst % 2) == (xSecond % 2) and 0 or 1
+if v5_3_or_greater then
+    rshift_24 = loadstring('local function fn(x) return x >> 24 end; return fn')()
 
-            return lastBit + 2 * xor(math.floor(xFirst/2), math.floor(xSecond/2))
-        end
+    xor = loadstring('local function fn(xFirst, xSecond) return xFirst ~ xSecond end; return fn')()
 
-local rshift_24 = v5_3_or_greater
-    and
-        function(x) return x >> 24 end
-    or
-        function(x) return math.floor(x / 16777216) end
+else
+    rshift_24 = loadstring('local function fn(x) return math.floor(x / 16777216) end; return fn')()
+
+    xor = loadstring(
+        [[
+            -- a little bit of Y-combinator-ish goofiness to do
+            -- recursion without using non-local identifiers..
+
+            local function fn(xor, xFirst, xSecond)
+                if xFirst  == 0 then return xSecond end
+                if xSecond == 0 then return xFirst  end
+
+                local lastBit = (xFirst % 2) == (xSecond % 2) and 0 or 1
+
+                return lastBit + 2 * xor(xor, math.floor(xFirst/2), math.floor(xSecond/2))
+            end
+
+            return function(x,y) return fn(fn, x,y) end
+        ]]
+    )()
+end
 
 local crcTable
 

@@ -47,7 +47,7 @@ Download gitbridge from github:
   cd codea_gitbridge
 
   # If you don't want to execute right out of this download
-  # directory, copy the server in some handy place on your
+  # directory, copy the server to some handy place on your
   # development box:
 
   sudo cp git_bridge.lua util.lua /usr/local/bin
@@ -127,7 +127,7 @@ git repository , you will likely want to do a `git rebase`
 operation first.
 
 (Version 2.0 of GitBridge will incorporate artificial intelligence,
-so that it can create scintillating and percipient commit messages for
+so that it can create witty and insightful commit messages for
 you automatically.)
 
 ## Dependencies ##
