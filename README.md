@@ -81,17 +81,18 @@ Options:
 On the Codea side, you will need to create a new project:
 
 1.  Create a new project named GitBridge
-2.  In the GitBridge project, create three new tabs with empty files:
+2.  In the GitBridge project, create four new tabs with empty files:
    * Util
    * Receivefile
    * Sendfile
+   * GitBridge
 3.  Copy the four files in codea_gitbridge/GitBridge into Codea.
 
 I would suggest you start Air Code option on Codea, and use your browser.
 
 In your browser, go to to the URL indicated by Codea.  Then, open the
-GitBridge project you just created.  Copy and Paste the three support
-files first:  Util, Receivefile, and Sendfile.
+GitBridge project you just created.  Copy and Paste the four support
+files first:  Util, GitBridge, Receivefile, and Sendfile.
 
 Finally, replace the default contents of Main with the contents of
 GitBridge/Main.
