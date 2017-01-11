@@ -3,15 +3,9 @@
 -- Copyright (c) Greg Johnson, Gnu Public Licence v. 2.0.
 -----------------------------------------------------------------------------
 
-local thisFile = debug.getinfo(1).source:match('@(.*)')
-print('th', thisFile)
-
-if thisFile then
-    local scriptDir = thisFile:match('.*/')
-    print('sc', scriptDir)
-    if #scriptDir > 0 then
-        package.path = scriptDir .. '?.lua;' .. package.path
-    end
+local scriptDir = debug.getinfo(1).source:match('@(.*)/')
+if #scriptDir > 0 then
+    package.path = scriptDir .. '?.lua;' .. package.path
 end
 
 local socket = require('socket')

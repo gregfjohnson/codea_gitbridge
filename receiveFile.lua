@@ -3,9 +3,8 @@
 -- Copyright (c) Greg Johnson, Gnu Public Licence v. 2.0.
 -----------------------------------------------------------------------------
 
-local thisFile = debug.getinfo(1).source:match('@(.*)')
-if thisFile then
-    local scriptDir = thisFile:match('.*/')
+local scriptDir = debug.getinfo(1).source:match('@(.*)/')
+if #scriptDir > 0 then
     package.path = scriptDir .. '?.lua;' .. package.path
     package.path = scriptDir .. '/GitBridge/?;' .. package.path
 end
