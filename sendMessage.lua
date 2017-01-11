@@ -3,9 +3,10 @@
 -- Copyright (c) Greg Johnson, Gnu Public Licence v. 2.0.
 -----------------------------------------------------------------------------
 
-local scriptDir = debug.getinfo(1).source:match('@(.*)/')
+local scriptDir = debug.getinfo(1).source:match('@(.*)')
+                                         :gsub('[/\\][^/\\]*$', '')
 if #scriptDir > 0 then
-    package.path = scriptDir .. '?.lua;' .. package.path
+    package.path = scriptDir .. '/?.lua;' .. package.path
 end
 
 socket = require 'socket'
