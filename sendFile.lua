@@ -29,6 +29,7 @@ Options:
 end
 
 function main()
+    local host = 'localhost'
     local port 
     local dir
     local fname
@@ -39,6 +40,10 @@ function main()
        if arg[i] == '-h' then
           doHelp()
           return
+
+       elseif arg[i] == '-host' then
+          i = i+1
+          host = arg[i]
 
        elseif arg[i] == '-p' then
           i = i+1
@@ -71,7 +76,7 @@ function main()
         end
     end
 
-    local sock = socket.connect('localhost', tonumber(port))
+    local sock = socket.connect(host, tonumber(port))
 
     if sock == nil then
         print('could not open socket.')
