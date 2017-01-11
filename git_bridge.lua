@@ -3,14 +3,16 @@
 -- Copyright (c) Greg Johnson, Gnu Public Licence v. 2.0.
 -----------------------------------------------------------------------------
 
--- some kung fu to find the directory containing this file
--- and add it to the package search path..
+local thisFile = debug.getinfo(1).source:match('@(.*)')
+print('th', thisFile)
 
-local stream = io.popen('readlink -f ' .. debug.getinfo(1).source:match('@(.*)'))
-local thisFile = stream:read('*l')
-stream:close()
-local scriptDir = thisFile:match('.*/')
-package.path = scriptDir .. '?.lua;' .. package.path
+if thisFile then
+    local scriptDir = thisFile:match('.*/')
+    print('sc', scriptDir)
+    if #scriptDir > 0 then
+        package.path = scriptDir .. '?.lua;' .. package.path
+    end
+end
 
 local socket = require('socket')
 require 'platform'
