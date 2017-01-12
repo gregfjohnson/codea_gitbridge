@@ -25,17 +25,13 @@ Options:
 end
 
 function main()
-    local host, port, message, response = 'localhost', 8080, 'test', 'response'
+    local port, message, response = 8080, 'test', 'response'
 
     local i = 1
     while i <= #arg do
        if arg[i] == '-p' then
           i = i+1
           port = arg[i]
-
-       elseif arg[i] == '-host' then
-          i = i+1
-          host = arg[i]
 
        elseif arg[i] == '-m' then
           i = i+1
@@ -50,7 +46,7 @@ function main()
        i = i+1
     end
     
-    local sock = socket.connect(host, tonumber(port))
+    local sock = socket.connect('localhost', tonumber(port))
     sock:keepalive('setoption', true)
     sock:send(message .. '\n')
     sock:close()

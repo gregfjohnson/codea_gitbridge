@@ -16,6 +16,7 @@ require 'platform'
 require 'Sendfile'
 
 local rootDir = '.'
+local sep     = package.config:sub(1,1)
 
 local doHelp = function()
    print(
@@ -30,7 +31,6 @@ Options:
 end
 
 function main()
-    local host = 'localhost'
     local port 
     local dir
     local fname
@@ -41,10 +41,6 @@ function main()
        if arg[i] == '-h' then
           doHelp()
           return
-
-       elseif arg[i] == '-host' then
-          i = i+1
-          host = arg[i]
 
        elseif arg[i] == '-p' then
           i = i+1
@@ -71,13 +67,13 @@ function main()
         os.exit(1)
 
     else
-        dir, fname = fileArg:match('(.*)/(.*)')
+        dir, fname = fileArg:match('(.*)[/\\](.*)')
         if dir == nil or fname == nil then
             dir, fname = '.', fileArg
         end
     end
 
-    local sock = socket.connect(host, tonumber(port))
+    local sock = socket.connect('localhost', tonumber(port))
 
     if sock == nil then
         print('could not open socket.')
@@ -87,7 +83,7 @@ function main()
     sock:setoption('keepalive', true)
     sock:settimeout(5.0)
 
-    local fileName = rootDir..'/'..dir..'/'..fname
+    local fileName = rootDir..sep..dir..sep..fname
     print(fileName)
     local f = io.open(fileName, 'r')
     local contents = f:read('*a')

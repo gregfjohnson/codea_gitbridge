@@ -15,8 +15,10 @@ require 'util'
 require 'platform'
 require 'Receivefile'
 
+local sep = package.config:sub(1,1)
+
 function needFile(dir, name, fileCrcValue)
-    local fh = io.open(dir..'/'..name, 'r')
+    local fh = io.open(dir..sep..name, 'r')
     if fh == nil then
         printf('needFile 1')
         return true
@@ -54,7 +56,6 @@ Options:
 end
 
 function main()
-    local host = 'localhost'
     local port 
     local dir
     local fname
@@ -69,10 +70,6 @@ function main()
        elseif arg[i] == '-p' then
           i = i+1
           port = arg[i]
-
-       elseif arg[i] == '-host' then
-          i = i+1
-          host = arg[i]
 
        elseif arg[i] == '-r' then
           i = i+1
@@ -95,13 +92,13 @@ function main()
         os.exit(1)
 
     else
-        dir, fname = fileArg:match('(.*)/(.*)')
+        dir, fname = fileArg:match('(.*)[/\\](.*)')
         if dir == nil or fname == nil then
             dir, fname = '.', fileArg
         end
     end
 
-    local sock = socket.connect(host, tonumber(port))
+    local sock = socket.connect('localhost', tonumber(port))
 
     if sock == nil then
         print('could not open socket.')
@@ -113,7 +110,7 @@ function main()
 
     local localContents
 
-    local file = rootDir..'/'..dir..'/'..fname
+    local file = rootDir..sep..dir..sep..fname
     local f = io.open(file, 'r')
     if f ~= nil then
         localContents = f:read('*a')

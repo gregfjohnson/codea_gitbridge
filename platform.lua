@@ -1,7 +1,9 @@
 -----------------------------------------------------------------------------
 -- Copyright (c) Greg Johnson, Gnu Public Licence v. 2.0.
 -----------------------------------------------------------------------------
-local debug = false
+local debug = true
+
+local sep = package.config:sub(1,1)
 
 function os_execute(cmd)
     if debug then print('execute', cmd) end
@@ -10,13 +12,14 @@ function os_execute(cmd)
 end
 
 function ensureDirectoryExists(rootDir, xDir)
-    local dir  = string.format('%s/%s', rootDir, xDir)
+    local dir  = string.format('%s'..sep..'%s', rootDir, xDir)
 
     os_execute('mkdir -p ' .. dir)
 end
 
 function writeLocalFile(rootDir, xDir, fileName, contents)
-    local file = string.format('%s/%s/%s', rootDir, xDir, fileName)
+    local file = string.format('%s'..sep..'%s'..sep..'%s', rootDir, xDir, fileName)
+    if debug then print('write local file', file) end
 
     ensureDirectoryExists(rootDir, xDir)
 

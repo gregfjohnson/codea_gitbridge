@@ -18,6 +18,8 @@ local writeLocalFileWithCommit
 local rootDir       = '.'
 local writeFiles    = true
 local gitOperations = true
+local sep           = package.config:sub(1,1)
+local csep          = sep == '/' and ';' or '&'
 
 local countLines = function(s)
    local _, n = s:gsub(".-\n[^\n]*", "")
@@ -32,7 +34,7 @@ local crcHistory = {}
 function readOrCreateCrcHistory(dir, crcFile, backupBranch)
     changeToGitBranch(dir, backupBranch)
 
-    local file = string.format('%s/%s', rootDir, crcFile)
+    local file = string.format('%s'..sep..'%s', rootDir, crcFile)
     crcHistory[crcFile] = {}
 
     local fh = io.open(file, 'r')
@@ -68,7 +70,7 @@ function updateCrcHistory(crcFile, clientHash, gitHash)
         historyContents = historyContents .. string.format('%s %s\n', crc, date)
     end
 
-    local dir, file = crcFile:match('([^/]*)/(.*)')
+    local dir, file = crcFile:match('([^/\\]*)[/\\](.*)')
 
     if not writeLocalFileWithCommit(rootDir, dir, file, historyContents,
                                     'save crc history of Codea file', 'codea_backup')
@@ -123,8 +125,8 @@ function sendFileBackupLocalVersion(sock)
     hash = tonumber(receiveLine(sock))
     if hash == nil then return false end
 
-    local file = string.format("%s/%s/%s", rootDir, project, tab)
-    local dir  = string.format("%s/%s",    rootDir, project)
+    local file = string.format('%s'..sep..'%s'..sep..'%s', rootDir, project, tab)
+    local dir  = string.format('%s'..sep..'%s',    rootDir, project)
 
     local fh = io.open(file, 'r')
     if fh == nil then
@@ -142,7 +144,7 @@ function sendFileBackupLocalVersion(sock)
     else
         print('checking hashes of client-side versions..')
 
-        local crcFile = string.format("%s/%s.crc_history", project, tab)
+        local crcFile = string.format('%s'..sep..'%s.crc_history', project, tab)
 
         if crcHistory[crcFile] == nil then
             readOrCreateCrcHistory(project, crcFile, 'codea_backup')
@@ -185,7 +187,7 @@ function sendFileBackupLocalVersion(sock)
                 changeToGitBranch(project, 'codea_backup')
 
                 -- read latest, most recent git hash from codea_backup branch
-                local fh = io.popen('cd '..dir..'; git log')
+                local fh = io.popen('cd '..dir..csep..' git log')
                 if fh ~= nil then
                     local hash = fh:read('*l')
 
@@ -230,7 +232,7 @@ function sendFileBackupLocalVersion(sock)
         return false
     end
 
-    printf("Sending %s/%s to Codea...", project, tab)
+    printf('Sending %s'..sep..'%s to Codea...', project, tab)
 
     -->> file line count -->>
     -->> line 1 -->>
@@ -279,9 +281,9 @@ function sendFile(sock)
     local tab = receiveLine(sock)
     if tab == nil then return false end
 
-    printf("Sending %s/%s to Codea...", project, tab)
+    printf('Sending %s'..sep..'%s to Codea...', project, tab)
 
-    local file = string.format("%s/%s/%s", rootDir, project, tab)
+    local file = string.format('%s'..sep..'%s'..sep..'%s', rootDir, project, tab)
 
     local fh = io.open(file, 'r')
     if fh == nil then
@@ -361,7 +363,7 @@ function receiveFile(sock)
     local tab = receiveLine(sock)
     if tab == nil then return false end
 
-    printf("Receiving %s/%s ...", project, tab)
+    printf('Receiving %s'..sep..'%s ...', project, tab)
 
     hash = receiveLine(sock)
     if hash == nil then return false end
@@ -369,7 +371,7 @@ function receiveFile(sock)
     local needed = false
     local serverFileContents, serverHash
 
-    local fh = io.open(rootDir..'/'..project..'/'..tab, 'r')
+    local fh = io.open(rootDir..sep..project..sep..tab, 'r')
     if fh == nil then
         needed = true
     else
@@ -419,18 +421,18 @@ function ensureMasterHasAtLeastOneCommit(xDir)
 
     ensureDirectoryExists(rootDir, xDir)
 
-    local dir  = string.format('%s/%s', rootDir, xDir)
+    local dir  = string.format('%s'..sep..'%s', rootDir, xDir)
 
     local foundMaster = false
 
-    local fh = io.popen(string.format('cd %s; git branch -a', dir))
+    local fh = io.popen(string.format('cd %s'..csep..' git branch -a', dir))
     for l in fh:lines() do
         if l:match('master') then foundMaster = true end
     end
     fh:close()
 
     if not foundMaster then
-        local cmd =  string.format('cd %s; ', dir)
+        local cmd =  string.format('cd %s'..csep..' ', dir)
         cmd = cmd .. string.format('git commit --allow-empty -m "initial master"')
 
         os_execute(cmd)
@@ -442,11 +444,11 @@ function changeToGitBranch(xDir, branch)
 
     assert(branch ~= nil, 'changeToGitBranch nil branch')
 
-    local dir  = string.format('%s/%s', rootDir, xDir)
+    local dir  = string.format('%s'..sep..'%s', rootDir, xDir)
 
     local foundMaster, foundBranch = false, false
 
-    local fh = io.popen(string.format('cd %s; git branch -a', dir))
+    local fh = io.popen(string.format('cd %s'..csep..' git branch -a', dir))
     for l in fh:lines() do
         if l:match('master') then foundMaster = true end
         if l:match(branch)   then foundBranch = true end
@@ -454,36 +456,36 @@ function changeToGitBranch(xDir, branch)
     fh:close()
 
     if not foundMaster then
-        os_execute(string.format('cd %s; git commit --allow-empty -m "initial master2"', dir))
+        os_execute(string.format('cd %s'..csep..' git commit --allow-empty -m "initial master2"', dir))
     end
 
     if not foundBranch then
-        local cmd =  string.format('cd %s; ', dir)
-        cmd = cmd .. string.format('git branch %s; ', branch)
-        cmd = cmd .. string.format('git checkout %s; ', branch)
-        cmd = cmd .. string.format('git commit --allow-empty -m "initial %s"; ', branch)
+        local cmd =  string.format('cd %s'..csep..' ', dir)
+        cmd = cmd .. string.format('git branch %s'..csep..' ', branch)
+        cmd = cmd .. string.format('git checkout %s'..csep..' ', branch)
+        cmd = cmd .. string.format('git commit --allow-empty -m "initial %s"'..csep..' ', branch)
         cmd = cmd .. string.format('git checkout master')
 
         os_execute(cmd)
     end
 
-    os_execute(string.format('cd %s; git checkout %s', dir, branch))
+    os_execute(string.format('cd %s'..csep..' git checkout %s', dir, branch))
 end
 
 function doGitCommit(xDir, fileName, xCommitMsg)
     if not gitOperations then return end
 
-    local dir  = string.format('%s/%s', rootDir, xDir)
+    local dir  = string.format('%s'..sep..'%s', rootDir, xDir)
 
     local commitMsg = 'automatic commit from Codea; '
 
-    commitMsg = commitMsg .. xDir..'/'..fileName
+    commitMsg = commitMsg .. xDir..sep..fileName
 
     if xCommitMsg ~= nil then
         commitMsg = commitMsg .. ':  ' .. xCommitMsg
     end
 
-    local cmd = string.format('cd %s; git add %s; git status; git commit -m "%s"',
+    local cmd = string.format('cd %s'..csep..' git add %s'..csep..' git status'..csep..' git commit -m "%s"',
                               dir, fileName, commitMsg)
     os_execute(cmd)
 end
@@ -491,11 +493,11 @@ end
 function commitGitCopyIfNeeded(rootDir, xDir, file, commitMsg)
     if not gitOperations then return end
 
-    local dir  = string.format('%s/%s', rootDir, xDir)
+    local dir  = string.format('%s'..sep..'%s', rootDir, xDir)
 
     ensureMasterHasAtLeastOneCommit(xDir)
 
-    local cmd =  string.format('cd %s; ', dir)
+    local cmd =  string.format('cd %s'..csep..' ', dir)
     cmd = cmd .. string.format('git status %s', file)
 
     local okMsg = 'working directory clean'
@@ -503,8 +505,8 @@ function commitGitCopyIfNeeded(rootDir, xDir, file, commitMsg)
 
     if ok then return end
 
-    cmd =        string.format('cd %s; ', dir)
-    cmd = cmd .. string.format('git add %s; ', file)
+    cmd =        string.format('cd %s'..csep..' ', dir)
+    cmd = cmd .. string.format('git add %s'..csep..' ', file)
     cmd = cmd .. string.format('git commit -m "%s"', commitMsg)
 
     os_execute(cmd)
