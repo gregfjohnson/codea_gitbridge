@@ -2,16 +2,20 @@
 -----------------------------------------------------------------------------
 -- Copyright (c) Greg Johnson, Gnu Public Licence v. 2.0.
 -----------------------------------------------------------------------------
-
 local scriptDir = debug.getinfo(1).source:match('@(.*)')
-                                         :gsub('[/\\][^/\\]*$', '')
-if #scriptDir > 0 then
-    package.path = scriptDir .. '/?.lua;' .. package.path
+
+if scriptDir:match('[/\\]') then
+    scriptDir = scriptDir:gsub('[/\\][^/\\]*$', '')
+else
+    scriptDir = '.'
 end
+
+package.path =    scriptDir .. '/GitBridge/?;'
+               .. scriptDir .. '/GitBridge/?.lua;' .. package.path
 
 local socket = require('socket')
 require 'platform'
-require 'util'
+require 'Util'
 
 local writeLocalFileWithCommit
 

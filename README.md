@@ -50,7 +50,10 @@ Download gitbridge from github:
   # directory, copy the server to some handy place on your
   # development box:
 
-  sudo cp git_bridge.lua util.lua platform.lua /usr/local/bin
+  sudo cp git_bridge.lua /usr/local/bin
+
+  sudo mkdir -p /usr/local/bin/GitBridge
+  sudo cp GitBridge/platform.lua GitBridge/Util /usr/local/bin/GitBridge
 ~~~
 
 On your development machine, create a directory and initialize it
