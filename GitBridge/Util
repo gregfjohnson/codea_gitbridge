@@ -50,7 +50,7 @@ else
 
                 local lastBit = (xFirst % 2) == (xSecond % 2) and 0 or 1
 
-                return lastBit + 2 * xor(xor, math.floor(xFirst/2), math.floor(xSecond/2))
+                return lastBit + 2 * xor(math.floor(xFirst/2), math.floor(xSecond/2))
             end
 end
 
