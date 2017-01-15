@@ -52,7 +52,7 @@ function main()
     end
     
     local sock = socket.connect('localhost', tonumber(port))
-    sock:keepalive('setoption', true)
+    sock:setoption('reuseaddr', true)
     sock:send(message .. '\n')
     sock:close()
 

@@ -636,7 +636,9 @@ if port == nil then
    os.exit(1)
 end
 
-local connectReceiver = socket.bind('*', tonumber(port))
+local connectReceiver = socket.tcp()
+connectReceiver:setoption('reuseaddr', true)
+connectReceiver = socket.bind('*', tonumber(port))
 if connectReceiver == nil then
    return print('Could not open port ' .. port)
 end

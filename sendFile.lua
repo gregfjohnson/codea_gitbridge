@@ -84,7 +84,7 @@ function main()
         os.exit(1)
     end
 
-    sock:setoption('keepalive', true)
+    sock:setoption('reuseaddr', true)
     sock:settimeout(5.0)
 
     local fileName = rootDir..sep..dir..sep..fname

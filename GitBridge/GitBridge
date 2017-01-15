@@ -81,12 +81,11 @@ function sendToGit(project, tab)
     local contents = readProjectTab(fname)
 
     local sock = socket.tcp()
+    sock:setoption('reuseaddr', true)
     sock:settimeout(1.0)
     local connected, err = sock:connect(host, tonumber(port))
     
     if connected == 1 then
-        sock:setoption('keepalive', true)
-        
         sent, error = sendFile(sock, project, tab, contents)
     end
 
@@ -109,12 +108,11 @@ function receiveFromGit(project, tab)
     local previousLocalContents = readProjectTab(fname)
     
     local sock = socket.tcp()
+    sock:setoption('reuseaddr', true)
     sock:settimeout(1.0)
     local connected, err = sock:connect(host, tonumber(port))
 
     if connected == 1 then
-        sock:setoption('keepalive', true)
-        
         sent, error = receiveFileBackupLocalVersion(sock,
                                                     project, tab,
                                                     previousLocalContents,

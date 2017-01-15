@@ -110,7 +110,7 @@ function main()
     end
 
     sock:settimeout(5.0)
-    sock:setoption('keepalive', true)
+    sock:setoption('reuseaddr', true)
 
     local localContents
 
