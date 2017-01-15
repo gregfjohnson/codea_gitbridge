@@ -52,17 +52,22 @@ function main()
     end
     
     local sock = socket.connect('localhost', tonumber(port))
+    if sock == nil then
+        print('could not connect')
+        os.exit(1)
+    end
     sock:setoption('reuseaddr', true)
     sock:send(message .. '\n')
-    sock:close()
 
     repeat
         local msg = receiveLine(sock)
-        if sock == nil then
-            print('could not open socket.')
-            os.exit(1)
-        end
+        print('response', msg)
+        if msg == nil then break end
     until msg:match(response)
+
+    sock:close()
+    local exitTime = os.time() + 2
+    while os.time() < exitTime do end
 end
 
 if debug.getinfo(3) == nil then

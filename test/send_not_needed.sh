@@ -5,6 +5,7 @@ mkdir /tmp/client.d /tmp/server.d
 
 git init /tmp/server.d > /dev/null
 ../git_bridge.lua -P 8080 -r /tmp/server.d >& /tmp/server.log &
+sleep 1
 
 mkdir /tmp/client.d/foo
 echo test1 > /tmp/client.d/foo/test1

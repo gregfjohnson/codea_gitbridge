@@ -17,6 +17,7 @@ netnode_pid=$!
 
 ../git_bridge.lua --no-git -P 8080 -r /tmp/server.d >& /tmp/server.log &
 transfer_pid=$!
+sleep 1
 
 mkdir /tmp/client.d/foo
 echo client test1 > /tmp/client.d/foo/test1

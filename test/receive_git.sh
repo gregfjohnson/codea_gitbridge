@@ -31,6 +31,7 @@ trap finalize INT
 # fire up the server
     ../git_bridge.lua -P 8080 -r /tmp/server.d >& /tmp/server.log &
     transfer_pid=$!
+    sleep 1
 
 # create a new client-side file, and make a copy of the client-side file
 # so that we can use that for tests below..

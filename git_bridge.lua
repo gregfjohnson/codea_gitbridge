@@ -25,6 +25,8 @@ local gitOperations = true
 local sep           = package.config:sub(1,1)
 local csep          = sep == '/' and ';' or '&'
 
+local connectReceiver
+
 local countLines = function(s)
    local _, n = s:gsub(".-\n[^\n]*", "")
    return n
@@ -574,11 +576,18 @@ function doServer(client)
             end
 
         elseif rs == "EXIT" then
+            client:send("EXIT\n")
+            client:close()
+            if connectReceiver ~= nil then
+                connectReceiver:close()
+            end
             print('exit..')
+            local exitTime = os.time() + 2
+            while os.time() < exitTime do end
             os.exit(0)
 
         elseif rs == nil then
-            client:close()
+            --client:close()
             print("client closed; all done.")
             break
 
@@ -636,11 +645,12 @@ if port == nil then
    os.exit(1)
 end
 
-local connectReceiver = socket.tcp()
+connectReceiver = socket.tcp()
 connectReceiver:setoption('reuseaddr', true)
 connectReceiver = socket.bind('*', tonumber(port))
 if connectReceiver == nil then
-   return print('Could not open port ' .. port)
+   print('Could not open port ' .. port)
+   os.exit(1)
 end
 
 while true do

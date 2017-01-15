@@ -41,6 +41,7 @@ trap finalize INT
 # fire up the server
     ../git_bridge.lua -P 8080 -r /tmp/server.d >& /tmp/server.log &
     transfer_pid=$!
+    sleep 1
 
 for n in 1 2 3 4 5 6 7 8; do
     # create a new client-side file (will be backed up on server side)

@@ -28,6 +28,7 @@ trap finalize INT
 # fire up the server
     ../git_bridge.lua -P 8080 -r /tmp/server.d >& /tmp/server.log &
     transfer_pid=$!
+    sleep 1
 
 # start up netnode so that we can capture tcp interactions between
 # client and server.
